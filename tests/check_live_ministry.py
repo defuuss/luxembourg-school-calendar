@@ -21,7 +21,19 @@ request = Request(
 with urlopen(request, timeout=30) as response:
     content = response.read().decode("utf-8")
 
-events = parser.parse_ministry_html(content)
+try:
+    events = parser.parse_ministry_html(content)
+except ValueError:
+    extractor = parser._ListExtractor()
+    extractor.feed(content)
+    print("HTML bytes:", len(content), flush=True)
+    print("Extracted year/list entries:", len(extractor.entries), flush=True)
+    print("First extracted entries:", extractor.entries[:3], flush=True)
+    for phrase in ("Année scolaire 2026/2027", "Toussaint", "Saint Nicolas", "Règlement grand-ducal"):
+        offset = content.casefold().find(phrase.casefold())
+        if offset >= 0:
+            print(f"HTML near {phrase}: {content[max(0, offset-200):offset+1000]}", flush=True)
+    raise
 years = sorted({e["school_year"] for e in events})
 saint_dates = sorted(e["start"] for e in events if e["kind"] == "st_nicholas")
 print(f"Ministry calendar: {len(events)} events, school years {years}")
