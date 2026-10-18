@@ -3,10 +3,10 @@
     "step": {
       "user": {
         "title": "Schulferien Luxemburg",
-        "description": "Verwendet den Kalender des Bildungsministeriums und speichert gültige Daten offline.",
+        "description": "Grundschul- und Sekundarschulkalender werden automatisch erstellt.",
         "data": {
           "language": "Kalendersprache",
-          "school_type": "Schulart"
+          "school_type": "Bevorzugte Schulart (beide werden erstellt)"
         }
       }
     },
@@ -20,7 +20,7 @@
         "title": "Kalendereinstellungen",
         "data": {
           "language": "Kalendersprache",
-          "school_type": "Schulart"
+          "school_type": "Bevorzugte Schulart (beide werden erstellt)"
         }
       }
     }

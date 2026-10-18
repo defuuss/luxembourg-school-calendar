@@ -8,3 +8,4 @@ UPDATE_INTERVAL = timedelta(days=1)
 STORAGE_VERSION = 1
 LANGUAGES = ("fr", "lb", "de", "en")
 SCHOOL_TYPES = ("fundamental", "secondary")
+SCHOOL_NAMES = {"fundamental": "Fundamental", "secondary": "Secondary"}

@@ -1,31 +1,38 @@
-"""Holiday and school-day binary sensors."""
-from homeassistant.util import dt as dt_util
+"""School holiday and school day sensors for both education levels."""
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
-from .const import DOMAIN
-from .helpers import relevant, active, is_school_day
+from homeassistant.util import dt as dt_util
+
+from .const import DOMAIN, SCHOOL_NAMES
+from .helpers import active, is_school_day, relevant, school_levels_for_entry
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
+    primary, other = school_levels_for_entry(entry)
     async_add_entities([
-        SchoolBinary(coordinator, entry, "holidays"),
-        SchoolBinary(coordinator, entry, "school_day"),
+        SchoolBinary(coordinator, entry, kind, school, legacy=school == primary)
+        for school in (primary, other)
+        for kind in ("holidays", "school_day")
     ])
 
 
 class SchoolBinary(CoordinatorEntity, BinarySensorEntity):
-    def __init__(self, coordinator, entry, kind):
+    def __init__(self, coordinator, entry, kind, school_type, legacy=False):
         super().__init__(coordinator)
-        self.entry, self.kind = entry, kind
-        self._attr_unique_id = f"{entry.entry_id}_{kind}"
-        self._attr_name = "School Holidays" if kind == "holidays" else "School Day"
+        self.kind = kind
+        self.school_type = school_type
+        self._attr_unique_id = (
+            f"{entry.entry_id}_{kind}" if legacy
+            else f"{entry.entry_id}_{school_type}_{kind}"
+        )
+        title = "School Holidays" if kind == "holidays" else "School Day"
+        self._attr_name = f"{title} ({SCHOOL_NAMES[school_type]})"
         self._attr_icon = "mdi:beach" if kind == "holidays" else "mdi:school"
 
     @property
     def is_on(self):
-        school = self.entry.options.get("school_type", self.entry.data["school_type"])
-        events = relevant(self.coordinator.data or [], school)
+        events = relevant(self.coordinator.data or [], self.school_type)
         today = dt_util.now().date()
         if self.kind == "holidays":
             return bool(active(events, today))

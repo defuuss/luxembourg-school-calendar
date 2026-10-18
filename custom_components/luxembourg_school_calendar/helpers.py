@@ -25,3 +25,12 @@ def is_school_day(events: list[dict], today: date) -> bool | None:
     if not (date(min(years), 9, 15) <= today < date(max(years) + 1, 9, 15)):
         return None
     return today.weekday() < 5 and active(events, today) is None
+
+
+def school_levels_for_entry(entry) -> tuple[str, str]:
+    """Create both calendars while retaining primary entity unique IDs."""
+    primary = entry.options.get("school_type", entry.data.get("school_type", "fundamental"))
+    if primary not in ("fundamental", "secondary"):
+        primary = "fundamental"
+    other = "secondary" if primary == "fundamental" else "fundamental"
+    return primary, other

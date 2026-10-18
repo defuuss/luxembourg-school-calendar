@@ -3,10 +3,10 @@
     "step": {
       "user": {
         "title": "Calendrier scolaire du Luxembourg",
-        "description": "Utilise le calendrier officiel du ministère de l’Éducation et conserve une copie hors ligne.",
+        "description": "Les calendriers fondamental et secondaire sont créés automatiquement.",
         "data": {
           "language": "Langue du calendrier",
-          "school_type": "Type d’enseignement"
+          "school_type": "Niveau scolaire préféré (les deux sont créés)"
         }
       }
     },
@@ -20,7 +20,7 @@
         "title": "Préférences du calendrier",
         "data": {
           "language": "Langue du calendrier",
-          "school_type": "Type d’enseignement"
+          "school_type": "Niveau scolaire préféré (les deux sont créés)"
         }
       }
     }

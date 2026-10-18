@@ -3,10 +3,10 @@
     "step": {
       "user": {
         "title": "Schoulvakanz Lëtzebuerg",
-        "description": "Benotzt den offizielle Kalenner vum Educatiounsministère a späichert Donnéeën offline.",
+        "description": "D'Kalennere fir d'Grondschoul an de Secondaire ginn automatesch erstallt.",
         "data": {
           "language": "Sprooch vum Kalenner",
-          "school_type": "Schoultyp"
+          "school_type": "Bevirzugte Schoulart (béid ginn erstallt)"
         }
       }
     },
@@ -20,7 +20,7 @@
         "title": "Kalennerastellungen",
         "data": {
           "language": "Sprooch vum Kalenner",
-          "school_type": "Schoultyp"
+          "school_type": "Bevirzugte Schoulart (béid ginn erstallt)"
         }
       }
     }

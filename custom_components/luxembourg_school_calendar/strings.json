@@ -6,7 +6,7 @@
         "title": "Configure school calendar",
         "data": {
           "language": "Language",
-          "school_type": "School type"
+          "school_type": "Preferred school level (both calendars are created)"
         }
       }
     }
@@ -17,7 +17,7 @@
         "title": "Calendar preferences",
         "data": {
           "language": "Language",
-          "school_type": "School type"
+          "school_type": "Preferred school level (both calendars are created)"
         }
       }
     }
