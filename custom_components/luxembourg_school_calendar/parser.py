@@ -84,6 +84,10 @@ class _ListExtractor(HTMLParser):
 
         if tag == "ul" and self._calendar_list_depth:
             self._calendar_list_depth -= 1
+            if self._calendar_list_depth == 0 and self.year is not None:
+                # The Ministry CMS uses a separate <ul> for every holiday.
+                # Keep collecting sibling lists until another heading.
+                self._awaiting_calendar_list = True
 
 
 
@@ -196,6 +200,9 @@ def parse_ministry_html(html: str) -> list[dict]:
     extractor.feed(html)
     events = []
     for academic_year, title in extractor.entries:
+        if title.casefold().startswith(("règlement grand-ducal", "loi du ")):
+            # Reference links in the page sidebar, not school closures.
+            continue
         matches = DATE_RE.findall(title)
         if not matches:
             continue

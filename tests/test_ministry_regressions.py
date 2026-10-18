@@ -157,3 +157,23 @@ def test_page_legal_references_not_misread_as_holidays():
     events = parser.parse_ministry_html(ministry_fixture() + legal_links)
     assert len(events) == 35
     assert not any(e["start"] == "2026-06-03" for e in events)
+
+
+def test_real_ministry_layout_one_list_per_holiday():
+    # The actual Ministry CMS wraps each holiday in its own UL.
+    html = "\n".join(
+        f"<h2>Année scolaire {year}/{year + 1}</h2>"
+        + "".join(f"<ul><li>{event}</li></ul>" for event in events)
+        for year, events in SCHOOL_YEAR_EVENTS.items()
+    )
+    html += (
+        "<h2 id='page-more__title'>Pour en savoir plus</h2>"
+        "<ul><li>Règlement grand-ducal du 3 juin 2026 fixant les calendriers "
+        "des vacances pour les années scolaires 2026/2027, 2027/2028 "
+        "et 2028/2029</li></ul>"
+    )
+    parsed = parser.parse_ministry_html(html)
+    assert len(parsed) == 35
+    assert len(helpers.relevant(parsed, "secondary")) == 33
+    assert helpers.active(helpers.relevant(parsed, "fundamental"), date(2027, 12, 6))
+    assert helpers.active(helpers.relevant(parsed, "secondary"), date(2027, 12, 6)) is None
