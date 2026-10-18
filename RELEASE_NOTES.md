@@ -1,26 +1,19 @@
-# Luxembourg School Calendar 1.0.0
+# Luxembourg School Calendar 1.1.0
 
-First stable release of the independent HACS integration for Luxembourg school holidays.
+## Added
 
-### Included features
+- **Next School Day (Fundamental)** and **Next School Day (Secondary)** date sensors.
+- Uses the next actual school day strictly *after today*, skipping weekends, Ministry holidays and fundamental-only days where applicable.
+- `days_until` attribute on each Next School Day sensor for reminders and dashboards.
+- Returns unknown when future school-year coverage is unavailable rather than guessing.
+- Tests for long breaks, ordinary weekends, Saint Nicholas Day and unpublished future school years.
 
-- Fundamental and Secondary holiday calendars, both created from a single installation.
-- School-day and holiday binary sensors; next-holiday and countdown sensors for both levels.
-- Daily update using the Luxembourg Ministry of Education as primary source.
-- Validated data.public.lu ICS fallback, with persistent offline cache.
-- French, Luxembourgish, German and English labels.
-- Original red-lion calendar branding and one-click Home Assistant/HACS installation links.
-- GitHub Actions unit tests and Home Assistant Hassfest validation.
+## Compatibility
 
-### Improvements for this release
+- Both existing calendars, holiday countdowns, source-status sensors and entity IDs remain unchanged.
+- No change to the Ministry-first / Open Data fallback / offline cache order.
+- Home Assistant icon files remain bundled; the HACS "Icon not available" notification placeholder is an upstream issue that HACS maintainers report is fixed by Marketplace in Home Assistant 2026.11.
 
-- Cleaner README: removed the beta banner and hard-coded current version.
-- Simplified setup: new installations select only a language because both calendars are created automatically.
-- Fixed entity identity stability: the legacy school-level identity is now based on the original configuration entry, so editing options no longer swaps which school level owns existing unique IDs.
-- Added a future improvements roadmap.
+## Upgrade
 
-### Updating
-
-Install or redownload the latest release in HACS and restart Home Assistant. Earlier installations that tracked commits instead of releases may need to select this release manually once.
-
-The project remains independently maintained and is not affiliated with or endorsed by the Luxembourg government.
+In HACS, choose Update information if needed, then update or redownload version 1.1.0 and restart Home Assistant.

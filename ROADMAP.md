@@ -4,7 +4,7 @@ This is a wishlist for future versions, **not a list of implemented features**. 
 
 ## High priority
 
-- **Next school day / first day back:** A dedicated date sensor so users can automate reminders on the evening before school resumes.
+- **School-resumption notification blueprint:** Ready-made reminder for the evening before the next school day, using the Next School Day sensor.
 - **School-days-remaining countdown:** Count instructional days, not just calendar days, until the next break.
 - **Source diagnostics:** Add a diagnostic entity or downloadable diagnostic information with source URL, last check, latest covered school year and reason for fallback.
 - **Live source change detection:** Scheduled tests against the Ministry's current page and an alert when its structure changes.
