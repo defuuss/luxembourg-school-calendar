@@ -10,7 +10,7 @@ spec.loader.exec_module(h)
 
 EVENTS = [
     {"start": "2028-12-06", "end": "2028-12-06", "school_year": 2028, "fundamental_only": True},
-    {"start": "2029-07-13", "end": "2029-09-16", "school_year": 2028, "fundamental_only": False},
+    {"kind": "summer", "start": "2029-07-13", "end": "2029-09-16", "school_year": 2028, "fundamental_only": False},
 ]
 
 

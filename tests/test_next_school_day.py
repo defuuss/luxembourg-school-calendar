@@ -12,7 +12,7 @@ EVENTS = [
     {"start": "2026-10-31", "end": "2026-11-08", "school_year": 2026, "fundamental_only": False},
     {"start": "2027-12-06", "end": "2027-12-06", "school_year": 2027, "fundamental_only": True},
     {"start": "2027-12-18", "end": "2028-01-02", "school_year": 2027, "fundamental_only": False},
-    {"start": "2028-07-14", "end": "2028-09-14", "school_year": 2027, "fundamental_only": False},
+    {"kind": "summer", "start": "2028-07-14", "end": "2028-09-14", "school_year": 2027, "fundamental_only": False},
 ]
 
 
