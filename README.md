@@ -1,88 +1,89 @@
 # Luxembourg School Calendar
 
-School holidays in Luxembourg, directly in Home Assistant. Includes separate calendars for **enseignement fondamental** and **enseignement secondaire**, useful for families with children at different school levels.
+See **which days children have school** in Luxembourg, directly in Home Assistant. This integration creates two school-day calendars: one for **enseignement fondamental** and one for **enseignement secondaire**.
 
 [![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=defuuss&repository=luxembourg-school-calendar&category=integration)
 [![Configure in Home Assistant](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=luxembourg_school_calendar)
 
+## How the calendars work
+
+**Calendar entries mean SCHOOL DAYS, not holidays.** Each day with school gets one all-day event named **School Day** (translated into your selected language). If there is no school, that date is **empty** in the calendar.
+
+The following days do **not** appear:
+
+- Saturdays and Sundays.
+- Ministry-published school vacations and additional school closures.
+- Luxembourg's 11 statutory public holidays, including Easter Monday, Ascension, Whit Monday and the fixed-date holidays.
+- **6 December (Saint Nicholas Day) for Fundamental education only.** Secondary education can still have school that day if it is a weekday.
+
+Example: **Monday, 6 December 2027** is empty in Fundamental, but appears as a school day in Secondary.
+
+These are **all-day calendar markers**, not class schedules or school opening hours. They only cover published school years; the integration does not invent future dates. It cannot know about closures specific to an individual school, local emergencies or last-minute announcements that the Ministry has not published.
+
 ## Features
 
-- **Two independent calendars:** Fundamental and Secondary, installed together.
-- **14 entities:** Two calendars, four binary sensors, and eight regular sensors.
-- **Daily updates:** Checks the Luxembourg Ministry of Education school calendar once per day.
-- **Fallback:** Tries the public Open Data ICS resource if the Ministry is unavailable or its response is invalid.
-- **Offline support:** Retains the most recent successfully validated calendar when both sources are unavailable.
-- **Four languages:** French, Luxembourgish, German and English.
-- **Automations:** School-day status, currently on holiday, next holiday, days until it begins, and the next actual school day.
-- **Local branding:** Original Luxembourg-inspired red-lion calendar icon.
+- Separate **School Days (Fundamental)** and **School Days (Secondary)** calendars from one installation.
+- School-day and holiday binary sensors for each level.
+- Next School Day date sensor, next holiday name and days-until-holiday sensors.
+- One daily check of the official Ministry calendar, followed by validated Open Data fallback and offline cache.
+- French, Luxembourgish, German and English.
+- Original red lion/calendar branding.
+- 14 Home Assistant entities total (two calendars, four binary sensors and eight sensors).
 
 ## Installation
 
-1. Click **Open in HACS** above, or add this repository to **HACS → Custom repositories** as an **Integration**.
-2. Download the latest published GitHub release.
-3. Restart Home Assistant after installing or updating integration code.
-4. Click **Configure in Home Assistant**, or open **Settings → Devices & services → Add integration** and search for *Luxembourg School Calendar*.
-5. Choose the calendar language. **Both school levels are added automatically.**
+1. Click **Open in HACS** above, or add this repository under **HACS → Custom repositories → Integration**.
+2. Download the latest GitHub release and restart Home Assistant.
+3. Click **Configure in Home Assistant**, or use **Settings → Devices & services → Add integration**.
+4. Select the language. Both school levels are automatically available.
 
-To install manually, copy `custom_components/luxembourg_school_calendar/` into Home Assistant's `config/custom_components/` folder and restart.
+Manual installation: copy `custom_components/luxembourg_school_calendar/` into Home Assistant's `config/custom_components/` folder and restart.
 
-## Available entities
+## Entities
 
 | Type | Fundamental | Secondary |
 |---|---|---|
-| Calendar | School Holidays (Fundamental) | School Holidays (Secondary) |
-| Binary sensor | School Holidays (Fundamental) | School Holidays (Secondary) |
+| **Calendar** | School Days (Fundamental) | School Days (Secondary) |
 | Binary sensor | School Day (Fundamental) | School Day (Secondary) |
+| Binary sensor | School Holidays (Fundamental) | School Holidays (Secondary) |
+| Date sensor | Next School Day (Fundamental) | Next School Day (Secondary) |
 | Sensor | Next School Holiday (Fundamental) | Next School Holiday (Secondary) |
 | Sensor | Days Until School Holiday (Fundamental) | Days Until School Holiday (Secondary) |
-| Date sensor | Next School Day (Fundamental) | Next School Day (Secondary) |
 
-Two shared sensors provide the **last successful synchronization** and **active data source**.
+Two additional shared sensors report the last successful synchronization and the active data source.
 
-**Next School Day** returns the first school day **after today**. It skips weekends and holidays for the selected school level, and exposes `days_until` as an attribute. Its state is a Home Assistant date sensor (not free-form text). If the published data does not cover the next school year, the state is `unknown` rather than inventing a date.
+The **School Day** binary sensors follow the same rules as the calendars, so they are `on` only on school days. The **School Holidays** binary sensors report published school holidays (not every weekend or public holiday). A missing future school year returns `unknown` rather than a guessed school day.
 
-Entity IDs are generated by Home Assistant. Existing installations retain their original entity unique IDs based on the school level selected during initial setup. New installations require only language selection.
+### Important change for users upgrading from the holiday calendars
 
-## How updates work
+Earlier releases displayed **school holidays** as calendar events. The school calendars now display **school days instead**. The integration retains the existing calendar entities' unique IDs to avoid deleting dashboard references; depending on your installation, their entity IDs may still contain `school_holidays`. You can rename those entity IDs under **Settings → Devices & services → Entities** if you prefer.
 
-The integration tries these sources, in order:
+**Review any automations that trigger on calendar events**: an event now means a day with school, not a holiday. All other holiday and countdown sensors remain available and keep their original meaning.
 
-1. **Ministry:** [Official school holidays](https://men.public.lu/fr/vacances-scolaires.html) — preferred source.
-2. **Open Data:** [Vacances et congés scolaires](https://data.public.lu/fr/datasets/vacances-et-conges-scolaires/) — ICS fallback, supplied by EducDesign S.A. and focused on fundamental education.
-3. **Saved calendar:** The latest validated local copy if both live sources are unusable.
+## How date accuracy works
 
-The data-source sensor displays `ministry`, `open_data` or `cache`. Its attributes show loaded event counts, covered school years and the **fundamental-only 6 December dates**. After midnight, sensors update their date-based states locally without an extra download.
+1. **Primary:** [Ministry of Education calendar](https://men.public.lu/fr/vacances-scolaires.html).
+2. **Fallback:** [Open Data ICS school calendar](https://data.public.lu/fr/datasets/vacances-et-conges-scolaires/) (published by EducDesign S.A.; mainly Fundamental).
+3. **Offline:** Last validated local data if live downloads fail or an older backup is less complete.
 
-**Saint Nicholas Day (6 December)** is only a school holiday for fundamental education. In the published schedule, Monday 6 December 2027 and Wednesday 6 December 2028 are holidays for fundamental schools but ordinary secondary-school days. Sunday 6 December 2026 is a weekend for both.
+In addition to published holidays, the code independently calculates Luxembourg's 11 [statutory public holidays](https://guichet.public.lu/en/citoyens/travail/conges-jours-feries/jours-feries/travail-jours-feries.html), so dates like 9 May cannot accidentally become school days merely because a source omitted an individual event. Statutory compensatory leave days for employers are not assumed to be school closures.
 
-If an event is added to the Ministry calendar with unfamiliar wording, the integration keeps it rather than silently omitting that day. Downloaded school years are checked for the regular holiday periods, weekday Saint Nicholas dates, and fixed-date public holidays. When checks fail, the integration uses its validated fallback/cache instead of treating missing dates as normal school days.
+Both calendars share a daily update coordinator and persistent cache. A GitHub Actions live-source check also verifies that the Ministry's current HTML can be parsed successfully before a new version is released.
 
-School-day **and holiday-status binary sensors return unknown outside known school-year coverage** rather than assuming classes are running normally. The [live Ministry check](.github/workflows/source-check.yml) monitors the website's actual format weekly. Release publishing also requires a successful live check, in addition to unit tests and Home Assistant Hassfest.
+## Updates and diagnostics
 
-## Why HACS might show "Icon not available"
+Open the integration in HACS, select **Update information**, then install or **Redownload** the latest release and restart Home Assistant. HACS may take up to 48 hours to discover updates automatically.
 
-The red lion icon and horizontal logo are shipped in `custom_components/luxembourg_school_calendar/brand/`. Home Assistant 2026.3+ can display them on the **Settings → Devices & services** integration page.
+The **School Calendar Source Status** entity shows `ministry`, `open_data` or `cache`; attributes show event count, covered school years and Fundamental-only Saint Nicholas dates.
 
-In October 2026, HACS may still show "Icon not available" on its **download/restart notifications**, even if Home Assistant displays the image correctly. This is an upstream HACS frontend limitation ([hacs/integration#5402](https://github.com/hacs/integration/issues/5402)), not a missing repository asset. The HACS maintainers said it is fixed in the Home Assistant Marketplace implementation scheduled for Home Assistant 2026.11.
-
-## Updates from HACS
-
-HACS tracks published GitHub releases. To check immediately, open this integration in HACS and choose **Update information**. If your installation was added before this repository began publishing releases, **Redownload** and choose the latest release once, then restart Home Assistant.
+Home Assistant 2026.3+ loads the original icon and logo from the integration's `brand/` directory. Some older HACS notifications may still show "Icon not available"; this is a known upstream HACS frontend issue, not a missing image.
 
 ## Project
 
 - [Releases](https://github.com/defuuss/luxembourg-school-calendar/releases)
-- [Planned improvements](ROADMAP.md)
-- [Issues and feature requests](https://github.com/defuuss/luxembourg-school-calendar/issues)
+- [Roadmap](ROADMAP.md)
+- [Issues](https://github.com/defuuss/luxembourg-school-calendar/issues)
 
-### Development
+Development: run `python -m pip install pytest` then `python -m pytest -q tests`. GitHub Actions also runs Home Assistant Hassfest and live Ministry verification before automatically publishing numbered releases.
 
-```bash
-python -m pip install pytest
-python -m pytest -q tests
-python -m compileall -q custom_components
-```
-
-GitHub Actions validates changes with Python tests and Home Assistant Hassfest, then publishes a release when the manifest version changes.
-
-This is an independently developed community integration and is not affiliated with the Luxembourg government. Distributed under the [MIT license](LICENSE).
+MIT licensed, independently developed, and **not an official Luxembourg government integration**.

@@ -1,60 +1,90 @@
-"""School holiday calendars for both Luxembourg education levels."""
-from datetime import date, datetime, timedelta
+"""Calendars containing actual school days, never school closures."""
+from datetime import date, datetime, time, timedelta
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SCHOOL_NAMES
-from .helpers import active, next_event, relevant, school_levels_for_entry
-from .parser import label
+from .helpers import (
+    is_school_day,
+    next_school_day,
+    relevant,
+    school_days_between,
+    school_levels_for_entry,
+)
+
+SCHOOL_DAY_TITLES = {
+    "fr": "Jour d'école",
+    "lb": "Schouldag",
+    "de": "Schultag",
+    "en": "School Day",
+}
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     primary, other = school_levels_for_entry(entry)
+    # Preserve existing unique IDs to keep dashboard and automation references.
+    # Version 2 changes calendar *semantics*, not entity identity.
     async_add_entities([
-        LuxCalendar(coordinator, entry, primary, legacy=True),
-        LuxCalendar(coordinator, entry, other),
+        SchoolDayCalendar(coordinator, entry, primary, legacy=True),
+        SchoolDayCalendar(coordinator, entry, other),
     ])
 
 
-class LuxCalendar(CoordinatorEntity, CalendarEntity):
-    _attr_icon = "mdi:calendar-school"
+class SchoolDayCalendar(CoordinatorEntity, CalendarEntity):
+    _attr_icon = "mdi:school"
+    _attr_entity_registry_enabled_default = True
 
     def __init__(self, coordinator, entry, school_type, legacy=False):
         super().__init__(coordinator)
         self.entry = entry
         self.school_type = school_type
-        self._attr_name = f"Luxembourg School Holidays ({SCHOOL_NAMES[school_type]})"
+        self._attr_name = f"Luxembourg School Days ({SCHOOL_NAMES[school_type]})"
         self._attr_unique_id = (
             f"{entry.entry_id}_calendar" if legacy
             else f"{entry.entry_id}_calendar_{school_type}"
         )
 
     @property
-    def _events(self):
+    def _holidays(self):
         return relevant(self.coordinator.data or [], self.school_type)
 
-    def _make_event(self, item):
+    @property
+    def _summary(self):
         language = self.entry.options.get("language", self.entry.data.get("language", "fr"))
+        return SCHOOL_DAY_TITLES.get(language, SCHOOL_DAY_TITLES["fr"])
+
+    def _make_event(self, school_day: date) -> CalendarEvent:
         return CalendarEvent(
-            start=date.fromisoformat(item["start"]),
-            end=date.fromisoformat(item["end"]) + timedelta(days=1),
-            summary=item.get("title") if item.get("kind") == "other" else label(item["kind"], language),
-            description=item.get("source_text", ""),
-            uid=item["id"],
+            start=school_day,
+            end=school_day + timedelta(days=1),
+            summary=self._summary,
+            uid=f"{self.school_type}-school-{school_day.isoformat()}",
         )
 
     @property
     def event(self):
         today = dt_util.now().date()
-        item = active(self._events, today) or next_event(self._events, today)
-        return self._make_event(item) if item else None
+        day = (
+            today if is_school_day(self._holidays, today, self.school_type)
+            else next_school_day(self._holidays, today, self.school_type)
+        )
+        return self._make_event(day) if day else None
 
     async def async_get_events(self, hass, start_date: datetime, end_date: datetime):
+        if end_date <= start_date:
+            return []
+        # Calendar input bounds use the local Home Assistant timezone.
+        # Include the final date only if the requested end time is after midnight.
+        end_day = end_date.date()
+        if end_date.time() != time.min:
+            end_day += timedelta(days=1)
+
         return [
-            converted for item in self._events
-            if (converted := self._make_event(item)).start < end_date.date()
-            and converted.end > start_date.date()
+            self._make_event(day)
+            for day in school_days_between(
+                self._holidays, start_date.date(), end_day, self.school_type
+            )
         ]

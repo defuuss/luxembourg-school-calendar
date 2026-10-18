@@ -64,7 +64,7 @@ class SchoolSensor(CoordinatorEntity, SensorEntity):
         if self.kind == "source_status":
             return self.coordinator.source
         if self.kind == "next_school_day":
-            return next_school_day(self._events(), dt_util.now().date())
+            return next_school_day(self._events(), dt_util.now().date(), self.school_type)
         event = self._upcoming()
         if not event:
             return None
@@ -93,7 +93,7 @@ class SchoolSensor(CoordinatorEntity, SensorEntity):
             }
         if self.kind == "next_school_day":
             today = dt_util.now().date()
-            upcoming = next_school_day(self._events(), today)
+            upcoming = next_school_day(self._events(), today, self.school_type)
             return {"days_until": (upcoming - today).days} if upcoming else {}
         if self.kind != "next_holiday":
             return None

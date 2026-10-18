@@ -38,4 +38,4 @@ class SchoolBinary(CoordinatorEntity, BinarySensorEntity):
             if active(events, today):
                 return True
             return False if is_covered(events, today) else None
-        return is_school_day(events, today)
+        return is_school_day(events, today, self.school_type)

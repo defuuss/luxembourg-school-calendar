@@ -1,19 +1,26 @@
-# Luxembourg School Calendar 1.1.2
+# Luxembourg School Calendar 2.0.0
 
-## Real Ministry HTML parsing fix
+## School days only — intentional breaking change
 
-A new live-website test caught a parsing failure in the previous update: the Ministry page includes dated legal-reference links after the holiday calendars. The parser was treating these unrelated links as holiday entries.
+The two Home Assistant **calendars now contain school days only**, not school holidays.
 
-- Parse **only the holiday list associated with each school-year heading**.
-- Ignore unrelated legal references, site links, and dates appearing after the calendar.
-- Add regression coverage for the exact Luxembourg regulation-link issue.
-- Require a successful **live Ministry download and parsing check** before GitHub Actions publishes any future release.
-- Continue a separate weekly live-source monitor.
+- An all-day calendar event means **school is scheduled on that date**.
+- No events on weekends, Ministry school holidays or statutory Luxembourg public holidays.
+- Fundamental: 6 December is always a day off; Secondary has school on 6 December if it falls on an ordinary school weekday.
+- The calendar produces one independent all-day event per actual school day.
+- Only published school years are included. No unverified future school days are invented.
 
-All 35 published school-holiday events for 2026/27 through 2028/29 are checked by regression tests, including fundamental-only Saint Nicholas on 6 December 2027 and 2028. The distinction between Fundamental and Secondary calendars is preserved.
+### Improvements
 
-The date validation, visibility of new/unknown holiday names, and offline fallback protections introduced in 1.1.1 remain in place.
+- Independent calculation of Luxembourg's 11 statutory holidays (including Easter Monday, Ascension and Whit Monday), protecting school-day status if a source omits a holiday event.
+- Common date logic used by School Day binary sensors, Next School Day date sensors and both calendars.
+- Unit tests for weekends, vacation weeks, both 6 December school-level exceptions, fixed and moveable public holidays, and missing future years.
+- Primary Ministry source, Open Data fallback, offline caching, original branding and existing holiday/countdown sensors are retained.
 
-## Upgrade
+### Important for existing users
 
-Update to 1.1.2 through HACS and restart Home Assistant. Check the School Calendar Source Status sensor for `ministry` and inspect the fundamental-only Saint Nicholas dates in its attributes.
+This release changes the meaning of calendar events, so **review calendar-triggered automations**. Calendar entity unique IDs are preserved to avoid orphaning existing entities and dashboard references; their prior `school_holidays` entity IDs may remain even though the displayed calendars now contain school days. If desired, rename the entity IDs manually in Home Assistant.
+
+**School Holidays binary sensors and Next School Holiday countdown sensors are unchanged.**
+
+Install through HACS and restart Home Assistant.
