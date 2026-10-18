@@ -26,7 +26,11 @@ REQUIRED_BREAKS = frozenset({
 
 
 class _ListExtractor(HTMLParser):
-    """Extract holiday list items and associate them with school-year headings."""
+    """Capture the first school-holiday <ul> after each school-year heading.
+
+    The Ministry page has unrelated dated <li> elements (e.g. links to legal
+    regulations) after the calendars. Never treat those as school holidays.
+    """
 
     _VOID_ELEMENTS = frozenset({"br", "img", "hr", "input", "meta", "link", "wbr"})
 
@@ -37,12 +41,21 @@ class _ListExtractor(HTMLParser):
         self.parts = []
         self.entries = []
         self.year = None
+        self._awaiting_calendar_list = False
+        self._calendar_list_depth = 0
 
     def handle_starttag(self, tag, attrs):
+        if tag == "ul":
+            if self._awaiting_calendar_list:
+                self._calendar_list_depth = 1
+                self._awaiting_calendar_list = False
+            elif self._calendar_list_depth:
+                self._calendar_list_depth += 1
+
         if self.active_tag:
             if tag not in self._VOID_ELEMENTS:
                 self.level += 1
-        elif tag in ("h2", "h3", "li"):
+        elif tag in ("h2", "h3") or (tag == "li" and self._calendar_list_depth > 0):
             self.active_tag = tag
             self.level = 1
             self.parts = []
@@ -55,20 +68,23 @@ class _ListExtractor(HTMLParser):
             self.parts.append(data)
 
     def handle_endtag(self, tag):
-        if not self.active_tag or tag in self._VOID_ELEMENTS:
-            return
-        self.level -= 1
-        if self.level != 0:
-            return
-        content = " ".join(" ".join(self.parts).split())
-        if self.active_tag in ("h2", "h3"):
-            match = YEAR_RE.search(content)
-            if match:
-                self.year = int(match.group(1))
-        elif self.active_tag == "li" and self.year is not None:
-            self.entries.append((self.year, content))
-        self.active_tag = None
-        self.parts = []
+        if self.active_tag and tag not in self._VOID_ELEMENTS:
+            self.level -= 1
+            if self.level == 0:
+                content = " ".join(" ".join(self.parts).split())
+                if self.active_tag in ("h2", "h3"):
+                    match = YEAR_RE.search(content)
+                    self.year = int(match.group(1)) if match else None
+                    self._awaiting_calendar_list = bool(match)
+                    self._calendar_list_depth = 0
+                elif self.active_tag == "li" and self.year is not None:
+                    self.entries.append((self.year, content))
+                self.active_tag = None
+                self.parts = []
+
+        if tag == "ul" and self._calendar_list_depth:
+            self._calendar_list_depth -= 1
+
 
 
 def _category(value: str) -> str:

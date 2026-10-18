@@ -57,7 +57,7 @@ The data-source sensor displays `ministry`, `open_data` or `cache`. Its attribut
 
 If an event is added to the Ministry calendar with unfamiliar wording, the integration keeps it rather than silently omitting that day. Downloaded school years are checked for the regular holiday periods, weekday Saint Nicholas dates, and fixed-date public holidays. When checks fail, the integration uses its validated fallback/cache instead of treating missing dates as normal school days.
 
-School-day **and holiday-status binary sensors return unknown outside known school-year coverage** rather than assuming classes are running normally. The scheduled [live Ministry check](.github/workflows/source-check.yml) monitors the website's actual format weekly.
+School-day **and holiday-status binary sensors return unknown outside known school-year coverage** rather than assuming classes are running normally. The [live Ministry check](.github/workflows/source-check.yml) monitors the website's actual format weekly. Release publishing also requires a successful live check, in addition to unit tests and Home Assistant Hassfest.
 
 ## Why HACS might show "Icon not available"
 

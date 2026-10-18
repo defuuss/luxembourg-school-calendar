@@ -144,3 +144,16 @@ def test_saint_nicolas_hyphenated_name_still_fundamental_only():
     saint = next(e for e in events if e["start"] == "2027-12-06")
     assert saint["kind"] == "st_nicholas"
     assert saint["fundamental_only"]
+
+
+def test_page_legal_references_not_misread_as_holidays():
+    # The real Ministry page has a regulation link under the calendar.
+    # Its date is not a vacation, even though the link mentions school years.
+    legal_links = (
+        "<ul><li>Règlement grand-ducal du 3 juin 2026 fixant les "
+        "calendriers des vacances et congés scolaires pour les années "
+        "scolaires 2026/2027, 2027/2028 et 2028/2029</li></ul>"
+    )
+    events = parser.parse_ministry_html(ministry_fixture() + legal_links)
+    assert len(events) == 35
+    assert not any(e["start"] == "2026-06-03" for e in events)
