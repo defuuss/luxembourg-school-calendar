@@ -1,10 +1,8 @@
-## Luxembourg School Calendar 0.3.0
+## Version 0.3.1
 
-- **Ministry first:** Download and validate the official Luxembourg Ministry of Education's school-calendar page daily.
-- **Open Data backup:** If the Ministry fails, attempt the ICS feed published on data.public.lu by EducDesign S.A.
-- **Cache protection:** Preserve the existing validated calendar if both live sources fail, or the backup is older and less complete than saved Ministry dates.
-- **New status values:** The source-status sensor now reports ministry, open_data, or cache.
-- **Two calendars:** Fundamental and Secondary entities remain available with independent holiday and school-day sensors.
-- **Updates:** This release is published automatically after GitHub Actions unit tests and Hassfest checks pass.
+- Added the matching horizontal Luxembourg lion-and-calendar logo to Home Assistant's local brand directory.
+- Both brand images are now included in GitHub: brand/icon.png and brand/logo.png.
+- Carries forward 0.3.0: authoritative Ministry source first, verified Open Data ICS fallback, and persistent offline caching.
+- Both Fundamental and Secondary calendar entities remain available.
 
-**Upgrade:** Install or redownload version 0.3.0 through HACS, then restart Home Assistant. Earlier installs tracking the default branch may need a one-time manual selection of this release.
+**Upgrading:** In HACS, choose Update information (or Redownload), select 0.3.1 and restart Home Assistant. Custom HACS repositories refresh automatically about every 48 hours.

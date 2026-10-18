@@ -5,7 +5,7 @@
 
 Independent Home Assistant integration for school holidays in Luxembourg, providing **both Fundamental and Secondary calendars** from one installation.
 
-**Current version: 0.3.0 beta.** This is a community project, not an official government integration. Always verify important dates against the Ministry before making family scheduling automations.
+**Current version: 0.3.1 beta.** This is a community project, not an official government integration. Always verify important dates against the Ministry before making family scheduling automations.
 
 ## Install
 
@@ -48,7 +48,7 @@ GitHub Actions creates a **numbered GitHub release** on the main branch whenever
 
 HACS custom repositories normally poll GitHub about every 48 hours. To check sooner, open this repository in HACS and select **Update information**.
 
-**Existing installations:** If you installed an early commit before the first release, HACS may not automatically switch from default-branch commit tracking to release tracking. Choose **Redownload → 0.3.0** once, then restart Home Assistant.
+**Existing installations:** If you installed an early commit before the first release, HACS may not automatically switch from default-branch commit tracking to release tracking. Choose **Redownload → 0.3.1** once, then restart Home Assistant.
 
 ## Known limitations
 
