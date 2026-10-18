@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Schoulvakanz Lëtzebuerg",
+        "description": "Benotzt den offizielle Kalenner vum Educatiounsministère a späichert Donnéeën offline.",
+        "data": {
+          "language": "Sprooch vum Kalenner",
+          "school_type": "Schoultyp"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "De Lëtzebuerger Schoulkalenner ass scho konfiguréiert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Kalennerastellungen",
+        "data": {
+          "language": "Sprooch vum Kalenner",
+          "school_type": "Schoultyp"
+        }
+      }
+    }
+  }
+}

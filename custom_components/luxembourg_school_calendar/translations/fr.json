@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Calendrier scolaire du Luxembourg",
+        "description": "Utilise le calendrier officiel du ministère de l’Éducation et conserve une copie hors ligne.",
+        "data": {
+          "language": "Langue du calendrier",
+          "school_type": "Type d’enseignement"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Le calendrier scolaire du Luxembourg est déjà configuré."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Préférences du calendrier",
+        "data": {
+          "language": "Langue du calendrier",
+          "school_type": "Type d’enseignement"
+        }
+      }
+    }
+  }
+}

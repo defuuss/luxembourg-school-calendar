@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Luxembourg School Calendar",
+        "description": "Uses the Luxembourg Ministry of Education calendar and saves verified offline dates.",
+        "data": {
+          "language": "Calendar language",
+          "school_type": "School type"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Luxembourg School Calendar is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Calendar preferences",
+        "data": {
+          "language": "Calendar language",
+          "school_type": "School type"
+        }
+      }
+    }
+  }
+}

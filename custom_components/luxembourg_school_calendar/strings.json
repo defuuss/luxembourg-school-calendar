@@ -1,0 +1,25 @@
+{
+  "title": "Luxembourg School Calendar",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Configure school calendar",
+        "data": {
+          "language": "Language",
+          "school_type": "School type"
+        }
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Calendar preferences",
+        "data": {
+          "language": "Language",
+          "school_type": "School type"
+        }
+      }
+    }
+  }
+}

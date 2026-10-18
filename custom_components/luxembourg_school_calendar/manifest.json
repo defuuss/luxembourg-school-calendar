@@ -1,0 +1,14 @@
+{
+  "domain": "luxembourg_school_calendar",
+  "name": "Luxembourg School Calendar",
+  "codeowners": [
+    "@defuuss"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/defuuss/luxembourg-school-calendar",
+  "integration_type": "service",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/defuuss/luxembourg-school-calendar/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
