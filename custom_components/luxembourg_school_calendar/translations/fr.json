@@ -3,10 +3,9 @@
     "step": {
       "user": {
         "title": "Calendrier scolaire du Luxembourg",
-        "description": "Les calendriers fondamental et secondaire sont créés automatiquement.",
+        "description": "Les calendriers de l'enseignement fondamental et secondaire seront tous deux créés.",
         "data": {
-          "language": "Langue du calendrier",
-          "school_type": "Niveau scolaire préféré (les deux sont créés)"
+          "language": "Langue du calendrier"
         }
       }
     },
@@ -19,8 +18,7 @@
       "init": {
         "title": "Préférences du calendrier",
         "data": {
-          "language": "Langue du calendrier",
-          "school_type": "Niveau scolaire préféré (les deux sont créés)"
+          "language": "Langue du calendrier"
         }
       }
     }

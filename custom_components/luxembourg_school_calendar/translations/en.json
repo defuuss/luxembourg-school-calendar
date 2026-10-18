@@ -3,10 +3,9 @@
     "step": {
       "user": {
         "title": "Luxembourg School Calendar",
-        "description": "Both Fundamental and Secondary calendars are created automatically.",
+        "description": "Fundamental and Secondary school calendars will both be created.",
         "data": {
-          "language": "Calendar language",
-          "school_type": "Preferred school level (both are created)"
+          "language": "Calendar language"
         }
       }
     },
@@ -19,8 +18,7 @@
       "init": {
         "title": "Calendar preferences",
         "data": {
-          "language": "Calendar language",
-          "school_type": "Preferred school level (both are created)"
+          "language": "Calendar language"
         }
       }
     }

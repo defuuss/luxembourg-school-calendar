@@ -3,10 +3,9 @@
     "step": {
       "user": {
         "title": "Schoulvakanz Lëtzebuerg",
-        "description": "D'Kalennere fir d'Grondschoul an de Secondaire ginn automatesch erstallt.",
+        "description": "D'Kalennere fir d'Grondschoul an de Secondaire ginn allebéid ugeluecht.",
         "data": {
-          "language": "Sprooch vum Kalenner",
-          "school_type": "Bevirzugte Schoulart (béid ginn erstallt)"
+          "language": "Sprooch vum Kalenner"
         }
       }
     },
@@ -19,8 +18,7 @@
       "init": {
         "title": "Kalennerastellungen",
         "data": {
-          "language": "Sprooch vum Kalenner",
-          "school_type": "Bevirzugte Schoulart (béid ginn erstallt)"
+          "language": "Sprooch vum Kalenner"
         }
       }
     }

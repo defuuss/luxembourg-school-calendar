@@ -28,8 +28,14 @@ def is_school_day(events: list[dict], today: date) -> bool | None:
 
 
 def school_levels_for_entry(entry) -> tuple[str, str]:
-    """Create both calendars while retaining primary entity unique IDs."""
-    primary = entry.options.get("school_type", entry.data.get("school_type", "fundamental"))
+    """Create both levels with stable IDs anchored to original config.
+
+    Older versions allowed changing school_type in options, which could silently
+    transfer the legacy calendar's unique ID to the *other* school level.
+    The original school_type stored in entry.data must remain authoritative for
+    legacy entity naming. New installations default to fundamental.
+    """
+    primary = entry.data.get("school_type", "fundamental")
     if primary not in ("fundamental", "secondary"):
         primary = "fundamental"
     other = "secondary" if primary == "fundamental" else "fundamental"

@@ -3,10 +3,9 @@
     "step": {
       "user": {
         "title": "Schulferien Luxemburg",
-        "description": "Grundschul- und Sekundarschulkalender werden automatisch erstellt.",
+        "description": "Kalender für Grund- und Sekundarschulen werden beide automatisch erstellt.",
         "data": {
-          "language": "Kalendersprache",
-          "school_type": "Bevorzugte Schulart (beide werden erstellt)"
+          "language": "Kalendersprache"
         }
       }
     },
@@ -19,8 +18,7 @@
       "init": {
         "title": "Kalendereinstellungen",
         "data": {
-          "language": "Kalendersprache",
-          "school_type": "Bevorzugte Schulart (beide werden erstellt)"
+          "language": "Kalendersprache"
         }
       }
     }

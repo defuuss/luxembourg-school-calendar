@@ -1,4 +1,4 @@
-"""Regression tests for the dual-calendar school-level selection."""
+"""Regression tests for stable IDs and dual-calendar selection."""
 from pathlib import Path
 import importlib.util
 
@@ -13,17 +13,23 @@ class Entry:
     options = {}
 
 
-def test_secondary_existing_entry_stays_primary():
+def test_secondary_existing_entry_retains_legacy_ids():
     assert helpers.school_levels_for_entry(Entry()) == ("secondary", "fundamental")
 
 
-def test_options_change_primary_and_both_remain():
+def test_changing_old_preference_cannot_move_legacy_ids():
     entry = Entry()
     entry.options = {"school_type": "fundamental"}
+    assert helpers.school_levels_for_entry(entry) == ("secondary", "fundamental")
+
+
+def test_new_installation_has_both_calendars():
+    entry = Entry()
+    entry.data = {"language": "lb"}
     assert helpers.school_levels_for_entry(entry) == ("fundamental", "secondary")
 
 
-def test_new_installation_defaults_fundamental():
+def test_invalid_legacy_type_falls_back_safely():
     entry = Entry()
-    entry.data = {}
+    entry.data = {"school_type": "other"}
     assert helpers.school_levels_for_entry(entry) == ("fundamental", "secondary")

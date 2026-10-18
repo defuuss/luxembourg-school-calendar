@@ -1,11 +1,12 @@
-"""UI setup flow and editable integration options."""
+"""Home Assistant configuration flow and language options."""
 import voluptuous as vol
 from homeassistant import config_entries
-from .const import DOMAIN, LANGUAGES, SCHOOL_TYPES
 
+from .const import DOMAIN, LANGUAGES
+
+# Both school levels are created, so no school-type choice is necessary.
 CONFIG_SCHEMA = vol.Schema({
     vol.Required("language", default="fr"): vol.In(LANGUAGES),
-    vol.Required("school_type", default="fundamental"): vol.In(SCHOOL_TYPES),
 })
 
 
@@ -31,6 +32,5 @@ class LuxembourgSchoolCalendarOptionsFlow(config_entries.OptionsFlow):
         values = {**self.config_entry.data, **self.config_entry.options}
         schema = vol.Schema({
             vol.Required("language", default=values.get("language", "fr")): vol.In(LANGUAGES),
-            vol.Required("school_type", default=values.get("school_type", "fundamental")): vol.In(SCHOOL_TYPES),
         })
         return self.async_show_form(step_id="init", data_schema=schema)

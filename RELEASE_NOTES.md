@@ -1,8 +1,26 @@
-## Version 0.3.1
+# Luxembourg School Calendar 1.0.0
 
-- Added the matching horizontal Luxembourg lion-and-calendar logo to Home Assistant's local brand directory.
-- Both brand images are now included in GitHub: brand/icon.png and brand/logo.png.
-- Carries forward 0.3.0: authoritative Ministry source first, verified Open Data ICS fallback, and persistent offline caching.
-- Both Fundamental and Secondary calendar entities remain available.
+First stable release of the independent HACS integration for Luxembourg school holidays.
 
-**Upgrading:** In HACS, choose Update information (or Redownload), select 0.3.1 and restart Home Assistant. Custom HACS repositories refresh automatically about every 48 hours.
+### Included features
+
+- Fundamental and Secondary holiday calendars, both created from a single installation.
+- School-day and holiday binary sensors; next-holiday and countdown sensors for both levels.
+- Daily update using the Luxembourg Ministry of Education as primary source.
+- Validated data.public.lu ICS fallback, with persistent offline cache.
+- French, Luxembourgish, German and English labels.
+- Original red-lion calendar branding and one-click Home Assistant/HACS installation links.
+- GitHub Actions unit tests and Home Assistant Hassfest validation.
+
+### Improvements for this release
+
+- Cleaner README: removed the beta banner and hard-coded current version.
+- Simplified setup: new installations select only a language because both calendars are created automatically.
+- Fixed entity identity stability: the legacy school-level identity is now based on the original configuration entry, so editing options no longer swaps which school level owns existing unique IDs.
+- Added a future improvements roadmap.
+
+### Updating
+
+Install or redownload the latest release in HACS and restart Home Assistant. Earlier installations that tracked commits instead of releases may need to select this release manually once.
+
+The project remains independently maintained and is not affiliated with or endorsed by the Luxembourg government.

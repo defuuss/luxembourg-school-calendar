@@ -3,12 +3,15 @@
   "config": {
     "step": {
       "user": {
-        "title": "Configure school calendar",
+        "title": "Configure school calendars",
+        "description": "Both school levels will be created.",
         "data": {
-          "language": "Language",
-          "school_type": "Preferred school level (both calendars are created)"
+          "language": "Language"
         }
       }
+    },
+    "abort": {
+      "already_configured": "Already configured."
     }
   },
   "options": {
@@ -16,8 +19,7 @@
       "init": {
         "title": "Calendar preferences",
         "data": {
-          "language": "Language",
-          "school_type": "Preferred school level (both calendars are created)"
+          "language": "Language"
         }
       }
     }
