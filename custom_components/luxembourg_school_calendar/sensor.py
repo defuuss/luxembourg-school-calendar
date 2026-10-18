@@ -52,14 +52,14 @@ class SchoolSensor(CoordinatorEntity, SensorEntity):
         if self.kind == "last_sync":
             return self.coordinator.last_success
         if self.kind == "source_status":
-            return "cached" if self.coordinator.offline else "online"
+            return self.coordinator.source
         event = self._upcoming()
         if not event:
             return None
         if self.kind == "days_until":
             return (date.fromisoformat(event["start"]) - dt_util.now().date()).days
         language = self.entry.options.get("language", self.entry.data.get("language", "fr"))
-        return label(event["kind"], language)
+        return event.get("title") if event.get("kind") == "other" else label(event["kind"], language)
 
     @property
     def extra_state_attributes(self):

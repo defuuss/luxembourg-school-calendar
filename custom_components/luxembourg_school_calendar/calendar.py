@@ -41,7 +41,7 @@ class LuxCalendar(CoordinatorEntity, CalendarEntity):
         return CalendarEvent(
             start=date.fromisoformat(item["start"]),
             end=date.fromisoformat(item["end"]) + timedelta(days=1),
-            summary=label(item["kind"], language),
+            summary=item.get("title") if item.get("kind") == "other" else label(item["kind"], language),
             description=item.get("source_text", ""),
             uid=item["id"],
         )
