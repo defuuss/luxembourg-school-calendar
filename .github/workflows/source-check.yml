@@ -1,0 +1,20 @@
+name: Live Ministry calendar check
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: "19 7 * * 1"
+
+jobs:
+  live-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify current Ministry page has a complete calendar
+        run: python tests/check_live_ministry.py

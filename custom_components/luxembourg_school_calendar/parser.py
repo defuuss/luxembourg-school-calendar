@@ -1,7 +1,4 @@
-"""Parse Luxembourg Ministry of Education school-calendar HTML.
-
-Independent implementation. Dates come from the Ministry, not third-party JSON.
-"""
+"""Read school holiday entries from the Luxembourg Ministry of Education website."""
 from __future__ import annotations
 
 from datetime import date, timedelta
@@ -19,9 +16,19 @@ DATE_RE = re.compile(
 )
 YEAR_RE = re.compile(r"ann[ée]e scolaire\s+(20\d{2})\s*/\s*(20\d{2})", re.I)
 
+# Six regular vacation periods appear in every full published school year.
+# Reject a partially parsed calendar rather than marking vacation days as
+# ordinary school days when the Ministry changes its page layout.
+REQUIRED_BREAKS = frozenset({
+    "autumn", "christmas", "carnival", "easter", "whitsun", "summer",
+    "ascension",
+})
+
 
 class _ListExtractor(HTMLParser):
-    """Collect holiday list items beneath school-year headings."""
+    """Extract holiday list items and associate them with school-year headings."""
+
+    _VOID_ELEMENTS = frozenset({"br", "img", "hr", "input", "meta", "link", "wbr"})
 
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -33,7 +40,7 @@ class _ListExtractor(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         if self.active_tag:
-            if tag not in ("br", "img", "hr", "input", "meta", "link"):
+            if tag not in self._VOID_ELEMENTS:
                 self.level += 1
         elif tag in ("h2", "h3", "li"):
             self.active_tag = tag
@@ -41,28 +48,27 @@ class _ListExtractor(HTMLParser):
             self.parts = []
 
     def handle_startendtag(self, tag, attrs):
-        """Void elements must not change nesting level."""
+        """Self-closing elements do not change the nesting level."""
 
     def handle_data(self, data):
         if self.active_tag:
             self.parts.append(data)
 
     def handle_endtag(self, tag):
-        if not self.active_tag:
-            return
-        if tag in ("br", "img", "hr", "input", "meta", "link"):
+        if not self.active_tag or tag in self._VOID_ELEMENTS:
             return
         self.level -= 1
-        if self.level == 0:
-            content = " ".join(" ".join(self.parts).split())
-            if self.active_tag in ("h2", "h3"):
-                match = YEAR_RE.search(content)
-                if match:
-                    self.year = int(match.group(1))
-            elif self.active_tag == "li" and self.year:
-                self.entries.append((self.year, content))
-            self.active_tag = None
-            self.parts = []
+        if self.level != 0:
+            return
+        content = " ".join(" ".join(self.parts).split())
+        if self.active_tag in ("h2", "h3"):
+            match = YEAR_RE.search(content)
+            if match:
+                self.year = int(match.group(1))
+        elif self.active_tag == "li" and self.year is not None:
+            self.entries.append((self.year, content))
+        self.active_tag = None
+        self.parts = []
 
 
 def _category(value: str) -> str:
@@ -79,7 +85,7 @@ def _category(value: str) -> str:
         return "whitsun"
     if "été" in text:
         return "summer"
-    if "saint nicolas" in text:
+    if re.search(r"saint[\s-]*nicolas", text) or "kleeschen" in text:
         return "st_nicholas"
     if "ascension" in text:
         return "ascension"
@@ -121,32 +127,91 @@ def label(category: str, language: str) -> str:
     return LABELS.get(category, LABELS["other"])[{"fr": 0, "lb": 1, "de": 2, "en": 3}.get(language, 0)]
 
 
+def _validate(events: list[dict]) -> None:
+    school_years = {e["school_year"] for e in events}
+    if len(events) < 15 or len(school_years) < 2:
+        raise ValueError("Ministry page returned too few school holidays")
+    for year in school_years:
+        year_events = [e for e in events if e["school_year"] == year]
+        kinds = {e["kind"] for e in year_events}
+        missing = REQUIRED_BREAKS - kinds
+        if missing:
+            raise ValueError(f"School year {year}/{year + 1} missing holiday periods: {sorted(missing)}")
+
+        # Other fixed Luxembourg holidays can also make a weekday non-school.
+        # They may fall within an already listed vacation period instead of
+        # appearing as separate events (e.g. New Year's Day).
+        fixed_dates = (
+            date(year + 1, 1, 1),
+            date(year + 1, 5, 1),
+            date(year + 1, 5, 9),
+            date(year + 1, 6, 23),
+        )
+        for holiday_date in fixed_dates:
+            if holiday_date.weekday() >= 5:
+                continue
+            if not any(
+                e["start"] <= holiday_date.isoformat() <= e["end"]
+                for e in year_events
+            ):
+                raise ValueError(
+                    f"School year {year}/{year + 1} missing legal holiday on "
+                    f"{holiday_date}"
+                )
+
+        # 6 December is a fundamental-school holiday on school weekdays.
+        # On a weekend it need not be explicitly listed in the Ministry page.
+        saint_day = date(year, 12, 6)
+        if saint_day.weekday() < 5:
+            matches = [
+                e for e in year_events
+                if e["start"] == saint_day.isoformat() and e["end"] == saint_day.isoformat()
+                and e["fundamental_only"]
+            ]
+            if not matches:
+                raise ValueError(
+                    f"School year {year}/{year + 1} missing fundamental-only "
+                    f"Saint Nicholas holiday on {saint_day}"
+                )
+
+
 def parse_ministry_html(html: str) -> list[dict]:
-    parser = _ListExtractor()
-    parser.feed(html)
+    extractor = _ListExtractor()
+    extractor.feed(html)
     events = []
-    for academic_year, title in parser.entries:
+    for academic_year, title in extractor.entries:
         matches = DATE_RE.findall(title)
         if not matches:
             continue
+        if len(matches) > 2:
+            raise ValueError(f"Ambiguous Ministry date range: {title}")
         days = [date(int(year), MONTHS[month.casefold()], int(day)) for day, month, year in matches]
         start, end = days[0], days[-1]
         if end < start or end - start > timedelta(days=100):
             raise ValueError(f"Invalid Ministry dates: {title}")
+        if start.year not in (academic_year, academic_year + 1):
+            raise ValueError(f"Unexpected school year for event: {title}")
+
         category = _category(title)
-        if category == "other":
-            continue
+        fundamental_only = (
+            category == "st_nicholas"
+            or "uniquement pour l'enseignement fondamental" in title.casefold()
+            or (start == end and start.month == 12 and start.day == 6)
+        )
+        # Keep unfamiliar dated list items instead of silently discarding a
+        # new holiday because its wording isn't in the classifier yet.
         events.append({
             "start": start.isoformat(),
             "end": end.isoformat(),
             "kind": category,
-            "fundamental_only": category == "st_nicholas",
+            "title": title if category == "other" else None,
+            "fundamental_only": fundamental_only,
             "school_year": academic_year,
             "source_text": title,
             "id": f"{category}-{start.isoformat()}",
         })
-    events.sort(key=lambda item: (item["start"], item["end"], item["kind"]))
-    if len(events) < 15 or len({e["school_year"] for e in events}) < 2:
-        raise ValueError("Ministry page returned too few school holidays; format may have changed")
-    # Avoid duplicate list items without destroying chronological ordering.
-    return list({event["id"]: event for event in events}.values())
+
+    events.sort(key=lambda e: (e["start"], e["end"], e["kind"]))
+    events = list({(e["school_year"], e["start"], e["end"], e["kind"]): e for e in events}.values())
+    _validate(events)
+    return events

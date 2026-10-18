@@ -51,7 +51,13 @@ The integration tries these sources, in order:
 2. **Open Data:** [Vacances et congés scolaires](https://data.public.lu/fr/datasets/vacances-et-conges-scolaires/) — ICS fallback, supplied by EducDesign S.A. and focused on fundamental education.
 3. **Saved calendar:** The latest validated local copy if both live sources are unusable.
 
-The data-source sensor displays `ministry`, `open_data` or `cache`. After midnight, sensors update their date-based states locally without an extra download. The integration distinguishes Saint Nicholas Day, which is a school holiday for fundamental education only.
+The data-source sensor displays `ministry`, `open_data` or `cache`. Its attributes show loaded event counts, covered school years and the **fundamental-only 6 December dates**. After midnight, sensors update their date-based states locally without an extra download.
+
+**Saint Nicholas Day (6 December)** is only a school holiday for fundamental education. In the published schedule, Monday 6 December 2027 and Wednesday 6 December 2028 are holidays for fundamental schools but ordinary secondary-school days. Sunday 6 December 2026 is a weekend for both.
+
+If an event is added to the Ministry calendar with unfamiliar wording, the integration keeps it rather than silently omitting that day. Downloaded school years are checked for the regular holiday periods, weekday Saint Nicholas dates, and fixed-date public holidays. When checks fail, the integration uses its validated fallback/cache instead of treating missing dates as normal school days.
+
+School-day **and holiday-status binary sensors return unknown outside known school-year coverage** rather than assuming classes are running normally. The scheduled [live Ministry check](.github/workflows/source-check.yml) monitors the website's actual format weekly.
 
 ## Why HACS might show "Icon not available"
 

@@ -4,7 +4,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, SCHOOL_NAMES
-from .helpers import active, is_school_day, relevant, school_levels_for_entry
+from .helpers import active, is_covered, is_school_day, relevant, school_levels_for_entry
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -35,5 +35,7 @@ class SchoolBinary(CoordinatorEntity, BinarySensorEntity):
         events = relevant(self.coordinator.data or [], self.school_type)
         today = dt_util.now().date()
         if self.kind == "holidays":
-            return bool(active(events, today))
+            if active(events, today):
+                return True
+            return False if is_covered(events, today) else None
         return is_school_day(events, today)

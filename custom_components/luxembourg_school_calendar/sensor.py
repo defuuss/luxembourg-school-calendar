@@ -75,6 +75,22 @@ class SchoolSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
+        if self.kind == "source_status":
+            events = self.coordinator.data or []
+            dates = sorted({
+                e["start"] for e in events
+                if e.get("fundamental_only") and e.get("start", "")[5:10] == "12-06"
+            })
+            years = sorted({
+                e["school_year"] for e in events
+                if isinstance(e.get("school_year"), int)
+            })
+            return {
+                "holiday_event_count": len(events),
+                "school_years": [f"{year}/{year + 1}" for year in years],
+                "saint_nicholas_fundamental_only": dates,
+                "latest_holiday_end": max((e["end"] for e in events), default=None),
+            }
         if self.kind == "next_school_day":
             today = dt_util.now().date()
             upcoming = next_school_day(self._events(), today)

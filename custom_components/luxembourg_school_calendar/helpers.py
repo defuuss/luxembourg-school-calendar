@@ -17,14 +17,21 @@ def next_event(events: list[dict], today: date) -> dict | None:
     return next((e for e in events if date.fromisoformat(e["start"]) > today), None)
 
 
-def is_school_day(events: list[dict], today: date) -> bool | None:
-    """Return None outside published school years; never guess future dates."""
+def is_covered(events: list[dict], today: date) -> bool:
+    """Whether the published school years cover today's possible school days."""
     years = [e.get("school_year") for e in events if isinstance(e.get("school_year"), int)]
-    if not years:
+    return bool(
+        years and date(min(years), 9, 15) <= today < date(max(years) + 1, 9, 15)
+    )
+
+
+def is_school_day(events: list[dict], today: date) -> bool | None:
+    """Return None when school-day status is unknown beyond published years."""
+    if active(events, today):
+        return False
+    if not is_covered(events, today):
         return None
-    if not (date(min(years), 9, 15) <= today < date(max(years) + 1, 9, 15)):
-        return None
-    return today.weekday() < 5 and active(events, today) is None
+    return today.weekday() < 5
 
 
 def next_school_day(events: list[dict], today: date) -> date | None:
